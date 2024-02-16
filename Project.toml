@@ -1,0 +1,13 @@
+name = "CoupledIsingModels"
+uuid = "e8000cad-29d3-4c6e-a597-f81d02461bb3"
+authors = ["Gabriel Diaz Iturry <gabriel.diaz.iturry@gmail.com>"]
+version = "0.0.1-DEV"
+
+[compat]
+julia = "1.10"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
