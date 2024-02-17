@@ -3,6 +3,10 @@ uuid = "e8000cad-29d3-4c6e-a597-f81d02461bb3"
 authors = ["Gabriel Diaz Iturry <gabriel.diaz.iturry@gmail.com>"]
 version = "0.0.1-DEV"
 
+[deps]
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+
 [compat]
 julia = "1.10"
 
