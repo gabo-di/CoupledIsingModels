@@ -85,8 +85,8 @@ end
     Metropolis - Hastings update
 """
 function MetropolisHastingsUpdate!(ising::SpinGlassIsingModel{T, M}, Beta::T, rng::AbstractRNG) where{T, M}
-    i = rand(rng, ising.sze)
-    h = ising.H[i] + ising.J[i,:] * ising.s[:]
+    i = rand(rng, 1:ising.sze)
+    h = ising.H[i] + LinearAlgebra.dot(ising.J[i,:], ising.s[:])
     r = rand(rng, T)
     new_s = rand(rng, ising._s)
     ising.s[i] = ifelse(exp( Beta * h * (new_s - ising.s[i]) ) >= r, new_s, ising.s[i])
@@ -94,10 +94,10 @@ function MetropolisHastingsUpdate!(ising::SpinGlassIsingModel{T, M}, Beta::T, rn
 end
 
 function MetropolisHastingsUpdate!(ising::SpinGlassIsingModel{T, 2}, Beta::T, rng::AbstractRNG) where{T}
-    i = rand(rng, ising.sze)
-    h = ising.H[i] + ising.J[i,:] * ising.s[:]
+    i = rand(rng, 1:ising.sze)
     s = sum(ising._s) - ising.s[i] # (s_1  - s_i) + (s_-1 - s_i) + s_i -> flip s_i
-    h = (ising.H + ising.J*ising.s) * Beta * (s - ising.s[i])
+    h = (ising.H[i] + LinearAlgebra.dot(ising.J[i,:], ising.s[:])) *
+            Beta * (s - ising.s[i])
     r = rand(rng, T)
     ising.s[i] = ifelse(exp( h ) >= r, s, ising.s[i])
     return nothing
@@ -108,17 +108,17 @@ end
     Glauber update
 """
 function GlauberUpdate!(ising::SpinGlassIsingModel{T, 2}, Beta::T, rng::AbstractRNG) where {T}
-    i = rand(rng, ising.sze)
-    h = ising.H[i] + ising.J[i,:] * ising.s[:]
-    h = (ising.H + ising.J*ising.s) * Beta * (ising._s[2] - ising._s[1])
+    i = rand(rng, 1:ising.sze)
+    h = (ising.H[i] + LinearAlgebra.dot(ising.J[i,:], ising.s[:])) *
+            Beta * (ising._s[2] - ising._s[1])
     r = rand(rng, T)
     ising.s[i] = ifelse(sigmoid( h ) >= r, ising._s[2], ising._s[1])
     return nothing
 end
 
 function GlauberUpdate!(ising::SpinGlassIsingModel{T, M}, Beta::T, rng::AbstractRNG) where{T, M}
-    i = rand(rng, ising.sze)
-    h = ising.H[i] + ising.J[i,:]*ising.s[:]
+    i = rand(rng, 1:ising.sze)
+    h = ising.H[i] + LinearAlgebra.dot(ising.J[i,:], ising.s[:])
     r = rand(rng, T) 
     y = cumsum(map(x->exp(h * Beta * x), ising._s))
     idx = findfirst( x -> x/y[end] >= r, y)
