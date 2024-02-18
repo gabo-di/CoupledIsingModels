@@ -1,6 +1,7 @@
 using CoupledIsingModels
 using Test
 using StableRNGs
+using LinearAlgebra
 
 @testset "Metropolis Hasting Update" begin
     rng = StableRNG(42)

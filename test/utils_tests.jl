@@ -1,5 +1,5 @@
-using CoupledIsingModels
-using Tests
+using CoupledIsingModels: sigmoid
+using Test
 
 @testset "helper functions" begin
     atol = 1e-5
