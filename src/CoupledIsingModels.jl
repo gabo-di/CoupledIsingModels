@@ -6,8 +6,10 @@ using LinearAlgebra
 
 # ---- includes ----
 include("abstracttypes.jl")
-include("spinglassmodel.jl")
 include("utils.jl")
+include("spinglassmodel.jl")
+include("latticemodel.jl")
+include("updatingalgorithms.jl")
 
 # ---- exports ----
 export SpinGlassIsingModel,
