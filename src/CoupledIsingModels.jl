@@ -13,8 +13,10 @@ include("updatingalgorithms.jl")
 
 # ---- exports ----
 export SpinGlassIsingModel,
-       LittleUpdate!,
-       MetropolisHastingsUpdate!,
-       GlauberUpdate!
+       LittleAlgorithm,
+       MetropolisHastingsAlgorithm,
+       GlauberAlgorithm,
+       updateIsingModel!
+
 
 end

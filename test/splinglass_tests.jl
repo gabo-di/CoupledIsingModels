@@ -30,7 +30,6 @@ using LinearAlgebra
         end
         y .= y./n
         a =  tanh.(Beta*(ising.H + ising.J*y)) 
-        algorithm_name = string(algorithm_key)
         @test isapprox(y,a; atol=1e-3) 
     end
 end
