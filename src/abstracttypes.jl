@@ -1,3 +1,4 @@
+# ----- Ising Models -----
 """
     The AbstractIsingModel has a 
     T type of the arguments, in general T <: Number
@@ -25,6 +26,13 @@ abstract type AbstractSplinGlassIsingModel{T, N, M} <: AbstractIsingModel{T, N, 
 abstract type AbstractLatticeIsingModel{T, N, M} <: AbstractIsingModel{T, N, M} end
 
 
+
+
+
+
+# ----- Updating Algorihtms -----
+
+
 """
     Abstract type for algorithms that update Ising  Models
 """
@@ -39,4 +47,17 @@ abstract type AbstractParallelUpdate <: AbstractUpdateIsingModel end
     Abstract type for serial updating
 """
 abstract type AbstractSerialUpdate <: AbstractUpdateIsingModel end
+
+
+
+# ----- Kind of Boundary -----
+"""
+    Abstract type for Kind of Boundary 
+"""
+abstract type AbstractBoundaryKind end
+
+"""
+    Abstract Periodic Boundary
+"""
+abstract type AbstractPeriodicBoundary <: AbstractBoundaryKind end
 

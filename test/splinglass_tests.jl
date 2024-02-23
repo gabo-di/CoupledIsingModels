@@ -30,6 +30,7 @@ using LinearAlgebra
         end
         y .= y./n
         a =  tanh.(Beta*(ising.H + ising.J*y)) 
+        a = CoupledIsingModels._TAPEquation(y, Beta, ising.J, ising.H)
         @test isapprox(y,a; atol=1e-3) 
     end
 end
