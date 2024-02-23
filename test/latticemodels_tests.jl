@@ -66,7 +66,8 @@ end
         @testset for algorithm_name in keys(algorithm_list)
             algorithm = algorithm_list[algorithm_name]
             y .= 0
-            ising.s .= rand(rng,ising._s,ising.sze)
+            # ising.s .= rand(rng,ising._s,ising.sze)
+            ising.s .= ones(T, ising.sze)
             for i in 1:n
                 updateIsingModel!(ising, Beta, algorithm, rng)
                 y .+= ising.s
@@ -99,7 +100,8 @@ end
         @testset for algorithm_name in keys(algorithm_list)
             algorithm = algorithm_list[algorithm_name]
             y .= 0
-            ising.s .= rand(rng,ising._s,ising.sze)
+            # ising.s .= rand(rng,ising._s,ising.sze)
+            ising.s .= ones(T,ising.sze)
             for i in 1:n
                 updateIsingModel!(ising, Beta, algorithm, rng)
                 if i>nn
@@ -109,7 +111,7 @@ end
             y .= y./(n-nn)
             a = CoupledIsingModels._magnetization2DLatticeModel(Beta, 1, 0)
             algorithm_name = string(algorithm_name)
-            @test isapprox(abs(mean(y)),a; atol=1e-3) 
+            @test isapprox(mean(y),a; atol=1e-3) 
         end
     end
 end

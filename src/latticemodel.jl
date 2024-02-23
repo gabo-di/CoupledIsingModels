@@ -22,6 +22,9 @@ struct LatticeIsingModel{T, N, M} <: AbstractLatticeIsingModel{T, N, M}
 end
 
 
+
+# ----- How to declare a Lattice Ising Model -----
+
 """
     # number type, in general a kind of Float 
     T
@@ -82,6 +85,9 @@ function LatticeIsingModel(::Type{T}, shp::NTuple{N,Int}, rng=Random.default_rng
     LatticeIsingModel(T, SVector(T(-1),T(1)), shp, rng)
 end
 
+
+
+# ----- How to update a Lattice Ising Model -----
 
 """
     Little parallel update
@@ -153,3 +159,35 @@ function GlauberUpdate!(ising::LatticeIsingModel{T, N, M}, Beta::T, rng::Abstrac
     ising.s[i] = ising._s[idx]
     return nothing
 end
+
+
+
+# ----- How to calculate the fields of Lattice Ising Model -----
+
+"""
+    instant magnetization
+"""
+function magnetization(ising::LatticeIsingModel{T, N, M}, Beta::T, field::MagnetizationField{T},
+    upd_alg::AbstractUpdateIsingModel) where {T,N,M}
+    return ising.s 
+end
+
+"""
+    instant energy
+    for Serial Update methods
+"""
+function energy(ising::LatticeIsingModel{T, N, M}, Beta::T, field::EnergyField{T},
+    upd_alg::AbstractSerialUpdate) where {T,N,M}
+    return - ( ising.H + ising.J' * ising.s)' * ising.s 
+end
+
+"""
+    instant energy
+    for Parallel Update
+    see eq 38 of P. Peretto 1984 "Collective Properties of Neural Networks: A Statistical Physicis Approach"
+"""
+function energy(ising::LatticeIsingModel{T, N, M}, Beta::T, field::EnergyField{T},
+    upd_alg::AbstractParallelUpdate) where {T,N,M}
+    return - ( ising.H + ising.J' * ising.s)' * ising.s 
+end
+

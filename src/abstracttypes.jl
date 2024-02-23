@@ -15,7 +15,7 @@ abstract type AbstractIsingModel{T, N, M} end
     AbstractIsingModel{T, N, M}
     in general we expect to have N = 1 and M = 2
 """
-abstract type AbstractSplinGlassIsingModel{T, N, M} <: AbstractIsingModel{T, N, M} end
+abstract type AbstractSpinGlassIsingModel{T, N, M} <: AbstractIsingModel{T, N, M} end
 
 
 """
@@ -61,3 +61,40 @@ abstract type AbstractBoundaryKind end
 """
 abstract type AbstractPeriodicBoundary <: AbstractBoundaryKind end
 
+
+
+# ----- Algorithms to find mean values of fields -----
+"""
+    Abstract Mean for Ising Models
+"""
+abstract type AbstractMeanIsingAlgorithm end
+
+"""
+    Abstract Temporal Average
+"""
+abstract type AbstractTemporalAverageAlgorithm <: AbstractMeanIsingAlgorithm end
+
+
+
+# ----- Fields of Interest -----
+"""
+    Abstract Field
+"""
+abstract type AbstractField end
+
+"""
+    Abstract Magnetization
+"""
+abstract type AbstractMagnetization <: AbstractField end
+
+"""
+    Abstract Energy
+"""
+abstract type AbstractEnergy <: AbstractField end
+
+
+# ----- Mean Fields -----
+"""
+    Abstract Mean Field
+"""
+abstract type AbstractMeanField end

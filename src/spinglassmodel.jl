@@ -4,7 +4,7 @@
     H(s_1, s_0) = - ( H + J' * s_0)' * s_1 =  - ( H' * s_1 + s_0' * J * s_1 )
     where in general s_1 is at time t=1 and s_0 is at time t=0
 """
-struct SpinGlassIsingModel{T, M} <: AbstractSplinGlassIsingModel{T, 1, M}
+struct SpinGlassIsingModel{T, M} <: AbstractSpinGlassIsingModel{T, 1, M}
     # possible spin values
     _s::SVector{M,T}
     # spin array
@@ -16,6 +16,10 @@ struct SpinGlassIsingModel{T, M} <: AbstractSplinGlassIsingModel{T, 1, M}
     # the interaction matrix between spins, has shape = (sze, sze)
     J::AbstractArray{T, 2}
 end
+
+
+
+# ----- How to declare a Spin Glass Ising Model -----
 
 """
     # number type, in general a kind of Float 
@@ -57,6 +61,9 @@ function SpinGlassIsingModel(::Type{T}, sze::Int, rng=Random.default_rng()) wher
     SpinGlassIsingModel(T, SVector(T(-1),T(1)), sze, rng)
 end
 
+
+
+# ----- How to update a Spin Glass Ising Model -----
 
 """
     Little parallel update
@@ -127,4 +134,35 @@ function GlauberUpdate!(ising::SpinGlassIsingModel{T, M}, Beta::T, rng::Abstract
     idx = findfirst( x -> x/y[end] >= r, y)
     ising.s[i] = ising._s[idx]
     return nothing
+end
+
+
+
+# ----- How to calculate the fields of Spin Glass Ising Model -----
+
+"""
+    instant magnetization
+"""
+function magnetization(ising::SpinGlassIsingModel{T,M}, Beta::T, field::MagnetizationField{T},
+    upd_alg::AbstractUpdateIsingModel) where {T,M}
+    return ising.s 
+end
+
+"""
+    instant energy
+    for Serial Update methods
+"""
+function energy(ising::SpinGlassIsingModel{T,M}, Beta::T, field::EnergyField{T},
+    upd_alg::AbstractSerialUpdate) where {T,M}
+    return - ( ising.H + ising.J' * ising.s)' * ising.s 
+end
+
+"""
+    instant energy
+    for Parallel Update
+    see eq 38 of P. Peretto 1984 "Collective Properties of Neural Networks: A Statistical Physicis Approach"
+"""
+function energy(ising::SpinGlassIsingModel{T,M}, Beta::T, field::EnergyField{T},
+    upd_alg::AbstractParallelUpdate) where {T,M}
+    return - ( ising.H + ising.J' * ising.s)' * ising.s 
 end

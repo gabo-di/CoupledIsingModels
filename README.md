@@ -15,7 +15,6 @@ and have mean field approximations too
 [ ] GPU chess update
 [ ] GPU Little update
 [ ] Define the appropriate Hamiltonian for Little update
-[ ] Temporal mean value of various observables
 [ ] Coupled Ising Models simultaneous
 [ ] Coupled Ising Models step by step
 [ ] Plots of Ising Models in time
