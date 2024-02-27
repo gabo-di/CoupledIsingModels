@@ -51,10 +51,6 @@ end
         Beta = T(1);
         d = 1;
 
-        algorithm_list=Dict(
-            :MetropolisHastings => MetropolisHastingsAlgorithm(),
-            :Glauber => GlauberAlgorithm(),
-        )
         ising = LatticeIsingModel(T, sze, rng);
         is, js = makeNearestNeighboursConnections(d, ising.boundaries, ising.shp);
         vs = ones(T, length(is));
@@ -62,6 +58,13 @@ end
         ising.H .= ones(T, sze);
         n = 100_000;
         y = zeros(T,sze);
+
+        algorithm_list=Dict(
+            :MetropolisHastings => MetropolisHastingsAlgorithm(),
+            :Glauber => GlauberAlgorithm(),
+            :MetropolisCheckerboard => CheckerboardMetropolisAlgorithm(ising),
+            :GlauberCheckerboard => CheckerboardGlauberAlgorithm(ising)
+        )
 
         @testset for algorithm_name in keys(algorithm_list)
             algorithm = algorithm_list[algorithm_name]
@@ -85,14 +88,17 @@ end
         d = 1;
 
         sze = prod(shp)
-        algorithm_list=Dict(
-            :MetropolisHastings => MetropolisHastingsAlgorithm(),
-            :Glauber => GlauberAlgorithm(),
-        )
         ising = LatticeIsingModel(T, shp, rng);
         is, js = makeNearestNeighboursConnections(d, ising.boundaries, ising.shp);
         vs = ones(T, length(is));
         ising.J .= sparse(is, js, vs);
+
+        algorithm_list=Dict(
+            :MetropolisHastings => MetropolisHastingsAlgorithm(),
+            :Glauber => GlauberAlgorithm(),
+            :MetropolisCheckerboard => CheckerboardMetropolisAlgorithm(ising),
+            :GlauberCheckerboard => CheckerboardGlauberAlgorithm(ising)
+        )
 
         n = 1_000_000;
         nn = 1000

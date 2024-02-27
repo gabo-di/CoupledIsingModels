@@ -11,7 +11,6 @@ and have mean field approximations too
 
 
 ## TODO
-[ ] CPU chess update
 [ ] GPU chess update
 [ ] GPU Little update
 [ ] Define the appropriate Hamiltonian for Little update

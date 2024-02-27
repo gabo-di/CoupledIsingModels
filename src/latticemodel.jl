@@ -161,6 +161,130 @@ function GlauberUpdate!(ising::LatticeIsingModel{T, N, M}, Beta::T, rng::Abstrac
 end
 
 
+"""
+    CheckerboardMetropolisAlgorithm
+    it is defined for Lattice Ising models
+    right now considers that in each dimension the ising model has an even size
+"""
+function CheckerboardMetropolisAlgorithm(ising::LatticeIsingModel{T,N,M}) where {T,N,M}
+    sze = ising.sze
+    for i in ising.shp
+        if mod(i,2)!=0
+            @error "Need even grid size, got $i"
+        end
+    end
+
+    i_o, i_e = makeCheckerboardIndeces(ising.shp)
+
+    return CheckerboardMetropolisAlgorithm{T}(sze, i_o, i_e)
+end
+
+"""
+    Metropolis Checkerboard update
+"""
+function CheckerboardMetropolisUpdate!(ising::LatticeIsingModel{T, N, 2}, Beta::T, rng::AbstractRNG, alg::CheckerboardMetropolisAlgorithm{T}) where{T, N}
+    i_o = alg.i_o
+    i_e = alg.i_e
+    r = rand(rng, T, ising.sze)
+
+    # odd indeces
+    h = ising.H + ising.J' * ising.s
+    @inbounds for i in i_o
+        s = sum(ising._s) - ising.s[i] # (s_1  - s_i) + (s_-1 - s_i) + s_i -> flip s_i
+        hh = h[i] * Beta * (s - ising.s[i])
+        ising.s[i] = ifelse(exp( hh ) >= r[i], s, ising.s[i])
+    end
+    # even indeces
+    h = ising.H + ising.J' * ising.s
+    @inbounds for i in i_e
+        s = sum(ising._s) - ising.s[i] # (s_1  - s_i) + (s_-1 - s_i) + s_i -> flip s_i
+        hh = h[i] * Beta * (s - ising.s[i])
+        ising.s[i] = ifelse(exp( hh ) >= r[i], s, ising.s[i])
+    end
+    return nothing
+end
+
+function CheckerboardMetropolisUpdate!(ising::LatticeIsingModel{T, N, M}, Beta::T, rng::AbstractRNG, alg::CheckerboardMetropolisAlgorithm{T}) where{T, N, M}
+    i_o = alg.i_o
+    i_e = alg.i_e
+    r = rand(rng, T, ising.sze)
+    new_s = rand(rng, ising._s, ising.sze)
+
+    # odd indeces
+    h = ising.H + ising.J' * ising.s
+    @inbounds for i in i_o
+        ising.s[i] = ifelse(exp( Beta * h[i] * (new_s[i] - ising.s[i]) ) >= r[i], new_s[i], ising.s[i])
+    end
+    # even indeces
+    h = ising.H + ising.J' * ising.s
+    @inbounds for i in i_e
+        ising.s[i] = ifelse(exp( Beta * h[i] * (new_s[i] - ising.s[i]) ) >= r[i], new_s[i], ising.s[i])
+    end
+    return nothing
+end
+
+
+"""
+    CheckerboardGlauberAlgorithm
+    it is defined for Lattice Ising models
+    right now considers that in each dimension the ising model has an even size
+"""
+function CheckerboardGlauberAlgorithm(ising::LatticeIsingModel{T,N,M}) where {T,N,M}
+    sze = ising.sze
+    for i in ising.shp
+        if mod(i,2)!=0
+            @error "Need even grid size, got $i"
+        end
+    end
+
+    i_o, i_e = makeCheckerboardIndeces(ising.shp)
+
+    return CheckerboardGlauberAlgorithm{T}(sze, i_o, i_e)
+end
+
+"""
+    Glauber Checkerboard update
+"""
+function CheckerboardGlauberUpdate!(ising::LatticeIsingModel{T, N, 2}, Beta::T, rng::AbstractRNG, alg::CheckerboardGlauberAlgorithm{T}) where{T, N}
+    i_o = alg.i_o
+    i_e = alg.i_e
+    r = rand(rng, T, ising.sze)
+
+    # odd indeces
+    h = (ising.H + ising.J' * ising.s) * Beta * (ising._s[2] - ising._s[1])
+    @inbounds for i in i_o
+        ising.s[i] = ifelse(sigmoid( h[i] ) >= r[i], ising._s[2], ising._s[1])
+    end
+    # even indeces
+    h = (ising.H + ising.J' * ising.s) * Beta * (ising._s[2] - ising._s[1])
+    @inbounds for i in i_e
+        ising.s[i] = ifelse(sigmoid( h[i] ) >= r[i], ising._s[2], ising._s[1])
+    end
+    return nothing
+end
+
+function CheckerboardGlauberUpdate!(ising::LatticeIsingModel{T, N, M}, Beta::T, rng::AbstractRNG, alg::CheckerboardGlauberAlgorithm{T}) where{T, N, M}
+    i_o = alg.i_o
+    i_e = alg.i_e
+    r = rand(rng, T, ising.sze)
+
+    # odd indeces
+    h = ising.H + ising.J' * ising.s
+    @inbounds for i in i_o
+        y = cumsum(map(x->exp(h[i] * Beta * x), ising._s))
+        idx = findfirst( x -> x/y[end] >= r[i], y)
+        ising.s[i] = ising._s[idx]
+    end
+    # even indeces
+    h = ising.H + ising.J' * ising.s
+    @inbounds for i in i_e
+        y = cumsum(map(x->exp(h[i] * Beta * x), ising._s))
+        idx = findfirst( x -> x/y[end] >= r[i], y)
+        ising.s[i] = ising._s[idx]
+    end
+    return nothing
+end
+
 
 # ----- How to calculate the fields of Lattice Ising Model -----
 
@@ -184,6 +308,7 @@ end
 """
     instant energy
     for Parallel Update
+    TODO
     see eq 38 of P. Peretto 1984 "Collective Properties of Neural Networks: A Statistical Physicis Approach"
 """
 function energy(ising::LatticeIsingModel{T, N, M}, Beta::T, field::EnergyField{T},

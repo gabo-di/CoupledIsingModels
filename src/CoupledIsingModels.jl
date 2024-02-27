@@ -26,6 +26,8 @@ export SpinGlassIsingModel,
        LittleAlgorithm,
        MetropolisHastingsAlgorithm,
        GlauberAlgorithm,
+       CheckerboardMetropolisAlgorithm,
+       CheckerboardGlauberAlgorithm,
 
        updateIsingModel!,
 

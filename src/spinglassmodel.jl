@@ -160,6 +160,7 @@ end
 """
     instant energy
     for Parallel Update
+    TODO
     see eq 38 of P. Peretto 1984 "Collective Properties of Neural Networks: A Statistical Physicis Approach"
 """
 function energy(ising::SpinGlassIsingModel{T,M}, Beta::T, field::EnergyField{T},
