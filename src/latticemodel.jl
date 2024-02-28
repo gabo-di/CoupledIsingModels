@@ -105,7 +105,7 @@ end
 
 function LittleUpdate!(ising::LatticeIsingModel{T,N,M}, Beta::T, rng::AbstractRNG) where {T, N, M}
     h = (ising.H + ising.J'*ising.s)
-    @inbounds for i in 1:ising.sze
+    @inbounds Threads.@threads for i in 1:ising.sze
         r = rand(rng, T) 
         y = cumsum(map(x->exp(h[i] * Beta * x), ising._s))
         idx = findfirst( x -> x/y[end] >= r, y)
@@ -189,14 +189,14 @@ function CheckerboardMetropolisUpdate!(ising::LatticeIsingModel{T, N, 2}, Beta::
 
     # odd indeces
     h = ising.H + ising.J' * ising.s
-    @inbounds for i in i_o
+    @inbounds Threads.@threads for i in i_o
         s = sum(ising._s) - ising.s[i] # (s_1  - s_i) + (s_-1 - s_i) + s_i -> flip s_i
         hh = h[i] * Beta * (s - ising.s[i])
         ising.s[i] = ifelse(exp( hh ) >= r[i], s, ising.s[i])
     end
     # even indeces
     h = ising.H + ising.J' * ising.s
-    @inbounds for i in i_e
+    @inbounds Threads.@threads for i in i_e
         s = sum(ising._s) - ising.s[i] # (s_1  - s_i) + (s_-1 - s_i) + s_i -> flip s_i
         hh = h[i] * Beta * (s - ising.s[i])
         ising.s[i] = ifelse(exp( hh ) >= r[i], s, ising.s[i])
@@ -212,12 +212,12 @@ function CheckerboardMetropolisUpdate!(ising::LatticeIsingModel{T, N, M}, Beta::
 
     # odd indeces
     h = ising.H + ising.J' * ising.s
-    @inbounds for i in i_o
+    @inbounds Threads.@threads for i in i_o
         ising.s[i] = ifelse(exp( Beta * h[i] * (new_s[i] - ising.s[i]) ) >= r[i], new_s[i], ising.s[i])
     end
     # even indeces
     h = ising.H + ising.J' * ising.s
-    @inbounds for i in i_e
+    @inbounds Threads.@threads for i in i_e
         ising.s[i] = ifelse(exp( Beta * h[i] * (new_s[i] - ising.s[i]) ) >= r[i], new_s[i], ising.s[i])
     end
     return nothing
@@ -252,12 +252,12 @@ function CheckerboardGlauberUpdate!(ising::LatticeIsingModel{T, N, 2}, Beta::T, 
 
     # odd indeces
     h = (ising.H + ising.J' * ising.s) * Beta * (ising._s[2] - ising._s[1])
-    @inbounds for i in i_o
+    @inbounds Threads.@threads for i in i_o
         ising.s[i] = ifelse(sigmoid( h[i] ) >= r[i], ising._s[2], ising._s[1])
     end
     # even indeces
     h = (ising.H + ising.J' * ising.s) * Beta * (ising._s[2] - ising._s[1])
-    @inbounds for i in i_e
+    @inbounds Threads.@threads for i in i_e
         ising.s[i] = ifelse(sigmoid( h[i] ) >= r[i], ising._s[2], ising._s[1])
     end
     return nothing
@@ -270,14 +270,14 @@ function CheckerboardGlauberUpdate!(ising::LatticeIsingModel{T, N, M}, Beta::T, 
 
     # odd indeces
     h = ising.H + ising.J' * ising.s
-    @inbounds for i in i_o
+    @inbounds Threads.@threads for i in i_o
         y = cumsum(map(x->exp(h[i] * Beta * x), ising._s))
         idx = findfirst( x -> x/y[end] >= r[i], y)
         ising.s[i] = ising._s[idx]
     end
     # even indeces
     h = ising.H + ising.J' * ising.s
-    @inbounds for i in i_e
+    @inbounds Threads.@threads for i in i_e
         y = cumsum(map(x->exp(h[i] * Beta * x), ising._s))
         idx = findfirst( x -> x/y[end] >= r[i], y)
         ising.s[i] = ising._s[idx]

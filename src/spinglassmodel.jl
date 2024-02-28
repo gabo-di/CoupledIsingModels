@@ -81,7 +81,7 @@ end
 
 function LittleUpdate!(ising::SpinGlassIsingModel{T,M}, Beta::T, rng::AbstractRNG) where {T, M}
     h = (ising.H + ising.J'*ising.s)
-    @inbounds for i in 1:ising.sze
+    @inbounds Threads.@threads for i in 1:ising.sze
         r = rand(rng, T) 
         y = cumsum(map(x->exp(h[i] * Beta * x), ising._s))
         idx = findfirst( x -> x/y[end] >= r, y)
