@@ -98,7 +98,7 @@ end
 function LittleUpdate!(ising::LatticeIsingModel{T,N,2}, Beta::T, rng::AbstractRNG) where {T,N}
     h = (ising.H + ising.J'*ising.s) * Beta * (ising._s[2] - ising._s[1])
     r = rand(rng, T, ising.sze)
-    ising.s .= ifelse.( sigmoid.(h)>=r, ising._s[2], ising._s[1] )
+    ising.s .= ifelse.( sigmoid.(h).>=r, ising._s[2], ising._s[1] )
     return nothing
 end
 
