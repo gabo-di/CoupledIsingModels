@@ -62,8 +62,10 @@ end
         algorithm_list=Dict(
             :MetropolisHastings => MetropolisHastingsAlgorithm(),
             :Glauber => GlauberAlgorithm(),
-            :MetropolisCheckerboard => CheckerboardMetropolisAlgorithm(ising),
-            :GlauberCheckerboard => CheckerboardGlauberAlgorithm(ising)
+            :MetropolisCheckerboard_threads => CheckerboardMetropolisAlgorithm(ising, CoupledIsingModels.ThreadsCPU()),
+            :GlauberCheckerboard_threads => CheckerboardGlauberAlgorithm(ising, CoupledIsingModels.ThreadsCPU()),
+            :MetropolisCheckerboard_cpu => CheckerboardMetropolisAlgorithm(ising, CoupledIsingModels.SingleCPU()),
+            :GlauberCheckerboard_cpu => CheckerboardGlauberAlgorithm(ising, CoupledIsingModels.SingleCPU())
         )
 
         @testset for algorithm_name in keys(algorithm_list)
@@ -96,8 +98,10 @@ end
         algorithm_list=Dict(
             :MetropolisHastings => MetropolisHastingsAlgorithm(),
             :Glauber => GlauberAlgorithm(),
-            :MetropolisCheckerboard => CheckerboardMetropolisAlgorithm(ising),
-            :GlauberCheckerboard => CheckerboardGlauberAlgorithm(ising)
+            :MetropolisCheckerboard_threads => CheckerboardMetropolisAlgorithm(ising, CoupledIsingModels.ThreadsCPU()),
+            :GlauberCheckerboard_threads => CheckerboardGlauberAlgorithm(ising, CoupledIsingModels.ThreadsCPU()),
+            :MetropolisCheckerboard_cpu => CheckerboardMetropolisAlgorithm(ising, CoupledIsingModels.SingleCPU()),
+            :GlauberCheckerboard_cpu => CheckerboardGlauberAlgorithm(ising, CoupledIsingModels.SingleCPU())
         )
 
         n = 1_000_000;

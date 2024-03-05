@@ -50,6 +50,16 @@ abstract type AbstractSerialUpdate <: AbstractUpdateIsingModel end
 
 
 
+# ----- Accelerating computation -----
+
+"""
+    Abstract type for accelerating the computation
+"""
+abstract type AbstractComputation end
+
+
+
+
 # ----- Kind of Boundary -----
 """
     Abstract type for Kind of Boundary 

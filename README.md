@@ -12,9 +12,9 @@ and have mean field approximations too
 
 ## TODO
 
-[ ] GPU chess update
+[ ] GPU chess update (Should use AbstractComputation)
 
-[ ] GPU Little update
+[ ] GPU Little update (Note that should use AbstractComputation and also change CPU Little)
 
 [ ] Define the appropriate Hamiltonian for Little update
 
