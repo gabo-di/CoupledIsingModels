@@ -7,3 +7,5 @@ using SafeTestsets
 @safetestset "Lattice Ising Models" begin include("latticemodels_tests.jl") end
 
 @safetestset "Mean Algorithms" begin include("meanalgorithms_tests.jl") end
+
+@safetestset "Entropy Utils" begin include("entropyutils_tests.jl") end
