@@ -32,7 +32,8 @@ export SpinGlassIsingModel,
        updateIsingModel!,
 
        MagnetizationField,
-       EnergyField,
+       LocalEnergyField,
+       InteractionEnergyField,
        MeanFields,
 
        TemporalAverageAlgorithm,

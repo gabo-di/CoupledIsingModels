@@ -402,12 +402,21 @@ function magnetization(ising::LatticeIsingModel{T, N, M}, Beta::T, field::Magnet
 end
 
 """
-    instant energy
+    instant total local energy
     for Serial Update methods
 """
-function energy(ising::LatticeIsingModel{T, N, M}, Beta::T, field::EnergyField{T},
+function energy(ising::LatticeIsingModel{T, N, M}, Beta::T, field::LocalEnergyField{T},
     upd_alg::AbstractSerialUpdate) where {T,N,M}
-    return - ( ising.H + ising.J' * ising.s)' * ising.s 
+    return - ( ising.H + ising.J' * ising.s) .* ising.s 
+end
+
+"""
+    instant interaction local energy
+    for Serial Update methods
+"""
+function energy(ising::LatticeIsingModel{T, N, M}, Beta::T, field::InteractionEnergyField{T},
+    upd_alg::AbstractSerialUpdate) where {T,N,M}
+    return - ising.s' .* ising.J .* ising.s 
 end
 
 """
@@ -416,7 +425,7 @@ end
     TODO
     see eq 38 of P. Peretto 1984 "Collective Properties of Neural Networks: A Statistical Physicis Approach"
 """
-function energy(ising::LatticeIsingModel{T, N, M}, Beta::T, field::EnergyField{T},
+function energy(ising::LatticeIsingModel{T, N, M}, Beta::T, field::LocalEnergyField{T},
     upd_alg::AbstractParallelUpdate) where {T,N,M}
     return - ( ising.H + ising.J' * ising.s)' * ising.s 
 end
