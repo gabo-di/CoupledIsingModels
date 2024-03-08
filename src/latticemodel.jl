@@ -189,91 +189,83 @@ function CheckerboardMetropolisAlgorithm(ising::LatticeIsingModel{T,N,M}, cmp=no
     end
     C = typeof(cmp)
 
-    return CheckerboardMetropolisAlgorithm{T, C}(sze, i_o, i_e, cmp)
+    return CheckerboardMetropolisAlgorithm{T, C}(sze, [i_o, i_e], [1], cmp)
 end
 
 """
     Metropolis Checkerboard update
 """
 function CheckerboardMetropolisUpdate!(ising::LatticeIsingModel{T, N, 2}, Beta::T, rng::AbstractRNG, alg::CheckerboardMetropolisAlgorithm{T, ThreadsCPU}) where{T, N}
-    i_o = alg.i_o
-    i_e = alg.i_e
+    idxs = alg.idxs
+    idx = alg.itt[1]
     r = rand(rng, T, ising.sze)
 
-    # odd indeces
+    # change the set for the current iteration
+    alg.itt[1] = mod1(idx + 1, length(idxs))
+
+    # for a given set of indeces change the spin
     h = ising.H + ising.J' * ising.s
-    @inbounds Threads.@threads for i in i_o
+    @inbounds Threads.@threads for i in idxs[idx]
         s = sum(ising._s) - ising.s[i] # (s_1  - s_i) + (s_-1 - s_i) + s_i -> flip s_i
         hh = h[i] * Beta * (s - ising.s[i])
         ising.s[i] = ifelse(exp( hh ) >= r[i], s, ising.s[i])
     end
-    # even indeces
-    h = ising.H + ising.J' * ising.s
-    @inbounds Threads.@threads for i in i_e
-        s = sum(ising._s) - ising.s[i] # (s_1  - s_i) + (s_-1 - s_i) + s_i -> flip s_i
-        hh = h[i] * Beta * (s - ising.s[i])
-        ising.s[i] = ifelse(exp( hh ) >= r[i], s, ising.s[i])
-    end
+
     return nothing
 end
 
 function CheckerboardMetropolisUpdate!(ising::LatticeIsingModel{T, N, M}, Beta::T, rng::AbstractRNG, alg::CheckerboardMetropolisAlgorithm{T, ThreadsCPU}) where{T, N, M}
-    i_o = alg.i_o
-    i_e = alg.i_e
+    idxs = alg.idxs
+    idx = alg.itt[1]
     r = rand(rng, T, ising.sze)
     new_s = rand(rng, ising._s, ising.sze)
 
-    # odd indeces
+    # change the set for the current iteration
+    alg.itt[1] = mod1(idx + 1, length(idxs))
+
+    # for a given set of indeces change the spin
     h = ising.H + ising.J' * ising.s
-    @inbounds Threads.@threads for i in i_o
+    @inbounds Threads.@threads for i in idxs[idx]
         ising.s[i] = ifelse(exp( Beta * h[i] * (new_s[i] - ising.s[i]) ) >= r[i], new_s[i], ising.s[i])
     end
-    # even indeces
-    h = ising.H + ising.J' * ising.s
-    @inbounds Threads.@threads for i in i_e
-        ising.s[i] = ifelse(exp( Beta * h[i] * (new_s[i] - ising.s[i]) ) >= r[i], new_s[i], ising.s[i])
-    end
+
     return nothing
 end
 
 function CheckerboardMetropolisUpdate!(ising::LatticeIsingModel{T, N, 2}, Beta::T, rng::AbstractRNG, alg::CheckerboardMetropolisAlgorithm{T, SingleCPU}) where{T, N}
-    i_o = alg.i_o
-    i_e = alg.i_e
+    idxs = alg.idxs
+    idx = alg.itt[1]
     r = rand(rng, T, ising.sze)
 
-    # odd indeces
+    # change the set for the current iteration
+    alg.itt[1] = mod1(idx + 1, length(idxs))
+
+    # for a given set of indeces change the spin
     h = ising.H + ising.J' * ising.s
-    @inbounds for i in i_o
+    @inbounds for i in idxs[idx]
         s = sum(ising._s) - ising.s[i] # (s_1  - s_i) + (s_-1 - s_i) + s_i -> flip s_i
         hh = h[i] * Beta * (s - ising.s[i])
         ising.s[i] = ifelse(exp( hh ) >= r[i], s, ising.s[i])
     end
-    # even indeces
-    h = ising.H + ising.J' * ising.s
-    @inbounds for i in i_e
-        s = sum(ising._s) - ising.s[i] # (s_1  - s_i) + (s_-1 - s_i) + s_i -> flip s_i
-        hh = h[i] * Beta * (s - ising.s[i])
-        ising.s[i] = ifelse(exp( hh ) >= r[i], s, ising.s[i])
-    end
+
     return nothing
 end
 
 function CheckerboardMetropolisUpdate!(ising::LatticeIsingModel{T, N, M}, Beta::T, rng::AbstractRNG, alg::CheckerboardMetropolisAlgorithm{T, SingleCPU}) where{T, N, M}
-    i_o = alg.i_o
-    i_e = alg.i_e
+    idxs = alg.idxs
+    idx = alg.itt[1]
     r = rand(rng, T, ising.sze)
     new_s = rand(rng, ising._s, ising.sze)
 
-    # odd indeces
+    # change the set for the current iteration
+    alg.itt[1] = mod1(idx + 1, length(idxs))
+
+    # for a given set of indeces change the spin
     h = ising.H + ising.J' * ising.s
-    @inbounds for i in i_o
+    @inbounds for i in idxs[idx]
         ising.s[i] = ifelse(exp( Beta * h[i] * (new_s[i] - ising.s[i]) ) >= r[i], new_s[i], ising.s[i])
     end
-    # even indeces
-    h = ising.H + ising.J' * ising.s
-    @inbounds for i in i_e
-        ising.s[i] = ifelse(exp( Beta * h[i] * (new_s[i] - ising.s[i]) ) >= r[i], new_s[i], ising.s[i])
-    end
+
     return nothing
 end
 
@@ -305,89 +297,81 @@ function CheckerboardGlauberAlgorithm(ising::LatticeIsingModel{T,N,M}, cmp=nothi
     end
     C = typeof(cmp)
 
-    return CheckerboardGlauberAlgorithm{T, C}(sze, i_o, i_e, cmp)
+    return CheckerboardGlauberAlgorithm{T, C}(sze, [i_o, i_e], [1], cmp)
 end
 
 """
     Glauber Checkerboard update
 """
 function CheckerboardGlauberUpdate!(ising::LatticeIsingModel{T, N, 2}, Beta::T, rng::AbstractRNG, alg::CheckerboardGlauberAlgorithm{T, ThreadsCPU}) where{T, N}
-    i_o = alg.i_o
-    i_e = alg.i_e
+    idxs = alg.idxs
+    idx = alg.itt[1]
     r = rand(rng, T, ising.sze)
 
-    # odd indeces
+    # change the set of indeces for the current iteration
+    alg.itt[1] = mod1(idx + 1, length(idxs))
+
+    # for a given set of indeces change the spin
     h = (ising.H + ising.J' * ising.s) * Beta * (ising._s[2] - ising._s[1])
-    @inbounds Threads.@threads for i in i_o
+    @inbounds Threads.@threads for i in idxs[idx]
         ising.s[i] = ifelse(sigmoid( h[i] ) >= r[i], ising._s[2], ising._s[1])
     end
-    # even indeces
-    h = (ising.H + ising.J' * ising.s) * Beta * (ising._s[2] - ising._s[1])
-    @inbounds Threads.@threads for i in i_e
-        ising.s[i] = ifelse(sigmoid( h[i] ) >= r[i], ising._s[2], ising._s[1])
-    end
+
     return nothing
 end
 
 function CheckerboardGlauberUpdate!(ising::LatticeIsingModel{T, N, M}, Beta::T, rng::AbstractRNG, alg::CheckerboardGlauberAlgorithm{T, ThreadsCPU}) where{T, N, M}
-    i_o = alg.i_o
-    i_e = alg.i_e
+    idxs = alg.idxs
+    idx = alg.itt[1]
     r = rand(rng, T, ising.sze)
 
-    # odd indeces
+    # change the set for the current iteration
+    alg.itt[1] = mod1(idx + 1, length(idxs))
+
+    # for a given set of indeces change the spin
     h = ising.H + ising.J' * ising.s
-    @inbounds Threads.@threads for i in i_o
+    @inbounds Threads.@threads for i in idxs[idx]
         y = cumsum(map(x->exp(h[i] * Beta * x), ising._s))
         idx = findfirst( x -> x/y[end] >= r[i], y)
         ising.s[i] = ising._s[idx]
     end
-    # even indeces
-    h = ising.H + ising.J' * ising.s
-    @inbounds Threads.@threads for i in i_e
-        y = cumsum(map(x->exp(h[i] * Beta * x), ising._s))
-        idx = findfirst( x -> x/y[end] >= r[i], y)
-        ising.s[i] = ising._s[idx]
-    end
+
     return nothing
 end
 
 function CheckerboardGlauberUpdate!(ising::LatticeIsingModel{T, N, 2}, Beta::T, rng::AbstractRNG, alg::CheckerboardGlauberAlgorithm{T, SingleCPU}) where{T, N}
-    i_o = alg.i_o
-    i_e = alg.i_e
+    idxs = alg.idxs
+    idx = alg.itt[1]
     r = rand(rng, T, ising.sze)
 
-    # odd indeces
+    # change the set for the current iteration
+    alg.itt[1] = mod1(idx + 1, length(idxs))
+
+    # for a given set of indeces change the spin
     h = (ising.H + ising.J' * ising.s) * Beta * (ising._s[2] - ising._s[1])
-    @inbounds for i in i_o
+    @inbounds for i in idxs[idx]
         ising.s[i] = ifelse(sigmoid( h[i] ) >= r[i], ising._s[2], ising._s[1])
     end
-    # even indeces
-    h = (ising.H + ising.J' * ising.s) * Beta * (ising._s[2] - ising._s[1])
-    @inbounds for i in i_e
-        ising.s[i] = ifelse(sigmoid( h[i] ) >= r[i], ising._s[2], ising._s[1])
-    end
+
     return nothing
 end
 
 function CheckerboardGlauberUpdate!(ising::LatticeIsingModel{T, N, M}, Beta::T, rng::AbstractRNG, alg::CheckerboardGlauberAlgorithm{T, SingleCPU}) where{T, N, M}
-    i_o = alg.i_o
-    i_e = alg.i_e
+    idxs = alg.idxs
+    idx = alg.itt[1]
     r = rand(rng, T, ising.sze)
 
-    # odd indeces
+    # change the set for the current iteration
+    alg.itt[1] = mod1(idx + 1, length(idxs))
+
+    # for a given set of indeces change the spin
     h = ising.H + ising.J' * ising.s
-    @inbounds for i in i_o
+    @inbounds for i in idxs[idx]
         y = cumsum(map(x->exp(h[i] * Beta * x), ising._s))
         idx = findfirst( x -> x/y[end] >= r[i], y)
         ising.s[i] = ising._s[idx]
     end
-    # even indeces
-    h = ising.H + ising.J' * ising.s
-    @inbounds for i in i_e
-        y = cumsum(map(x->exp(h[i] * Beta * x), ising._s))
-        idx = findfirst( x -> x/y[end] >= r[i], y)
-        ising.s[i] = ising._s[idx]
-    end
+
     return nothing
 end
 

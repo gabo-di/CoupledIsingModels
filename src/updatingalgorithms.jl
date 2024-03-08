@@ -75,8 +75,8 @@ end
 
 struct CheckerboardMetropolisAlgorithm{T, C<:AbstractComputation} <: AbstractSerialUpdate
     sze::Int
-    i_o::AbstractArray{Int,1}
-    i_e::AbstractArray{Int,1}
+    idxs::Array{AbstractArray{Int,1},1} 
+    itt::Array{Int,1}
     cmp::C
 end
 
@@ -87,8 +87,8 @@ end
 
 struct CheckerboardGlauberAlgorithm{T, C<:AbstractComputation} <: AbstractSerialUpdate
     sze::Int
-    i_o::AbstractArray{Int,1}
-    i_e::AbstractArray{Int,1}
+    idxs::Array{AbstractArray{Int,1},1} 
+    itt::Array{Int,1}
     cmp::C
 end
 
