@@ -1,6 +1,5 @@
 """
     The sigmoid function
-using StaticArrays: length_val
     note that 
     σ(-Inf) ~ 0
     σ(Inf) ~ 1
@@ -8,6 +7,7 @@ using StaticArrays: length_val
 function sigmoid(x)
     1/(1 + exp(-x))
 end
+
 
 """
     TAP equation for magnetization
@@ -19,6 +19,7 @@ function _TAPEquation(m, Beta, J, H)
     tanh.(Beta*(H + J*m - Beta*(J.^2)*(1 .- m.^2 ))) 
 end
 
+
 """
     Magnetization in Lattice Ising Model in 1D with 
     first neighbours interactions 
@@ -29,6 +30,7 @@ function _magnetization1DLatticeModel(Beta, J, H)
     exp(2*Beta*J)*sinh(Beta*H)/sqrt(exp(4*Beta*J)*sinh(Beta*H)^2+1) 
 end
 
+
 """
    Spontaneous Magnetization in Lattice Ising Model in 2D with 
    first neighbours interactions 
@@ -38,6 +40,7 @@ end
 function _magnetization2DLatticeModel(Beta, J, H)
     (1 - (sinh(2*Beta*J))^(-4))^(1/8)
 end
+
     
 """
     Generates all spin combinations for a given chain 
@@ -49,46 +52,6 @@ function _generateSpinCombinations(sze)
     return [digits(i, base=2, pad=sze) for i in 0:n_c]
 end
 
-
-"""
-    Generates the partition function and probabilities for a given ising model
-    consider that size needs to be at most 7
-"""
-function _generatePartitionFunction(ising, Beta::T) where T
-    max_size = 8
-    if ising.sze > max_size
-        return @error "the size is bigger than $max_size" 
-    end
-
-    spins = _generateSpinCombinations(ising.sze)
-    probs = zeros(T, length(spins))
-    delta_spin = ising._s[2] - ising._s[1]
-    
-    for (i,spin_) in enumerate(spins)
-        spin = delta_spin .* spin_ .+ ising._s[1]
-        e = -(ising.H + ising.J' * spin)' * spin
-        probs[i] = exp(-Beta*e)
-    end
-    pF = sum(probs) 
-    return pF, probs ./ pF, spins
-end
-
-
-"""
-    Calculates the probability distribution for a given spin, uses 
-    the results from_generateSpinCombinations 
-"""
-function probDist(i::Int, probs, spins)
-    p = zeros(eltype(probs), 2)
-    for (k, spin) in enumerate(spins)
-        if spin[i] == 0
-            p[1] += probs[k]
-        else
-            p[2] += probs[k]
-        end
-    end
-    return p
-end
 
 """
     Calculates the probability distribution for a given set of spins, uses 
@@ -113,9 +76,22 @@ function probDist(i::Array{Int,1}, probs, spins)
     return p ./ sum(p)
 end
 
+function probDist(i::Int, probs, spins)
+    p = zeros(eltype(probs), 2)
+    for (k, spin) in enumerate(spins)
+        if spin[i] == 0
+            p[1] += probs[k]
+        else
+            p[2] += probs[k]
+        end
+    end
+    return p
+end
+
 function probDist(i::NTuple{N, Int}, probs, spins) where N
     probDist([i...], probs, spins)
 end
+
 
 """
     Calculates the Mutual Information for a given set of spins, uses 
@@ -155,12 +131,14 @@ function mutualInformation(i::Tuple{NTuple{M,Int},NTuple{N,Int}}, probs, spins) 
     return -s + s_
 end
 
+
 """
     Calculates the entropy of a mass distribution
 """
 function entropy(p::AbstractArray{T,1}) where T
     mapreduce(x -> x>0 ? -x*log(x) : 0, +, p)
 end
+
 
 """
     Calculates the cross entropy of two mass distributions
@@ -181,4 +159,25 @@ function bin2dec(digi::Array{Int,1})
 end
 
 
+"""
+    Generates the partition function and probabilities for a given ising model
+    consider that size needs to be at most 7
+"""
+function _generatePartitionFunction(ising, Beta::T) where T
+    max_size = 8
+    if ising.sze > max_size
+        return @error "the size is bigger than $max_size" 
+    end
 
+    spins = _generateSpinCombinations(ising.sze)
+    probs = zeros(T, length(spins))
+    delta_spin = ising._s[2] - ising._s[1]
+    
+    for (i,spin_) in enumerate(spins)
+        spin = delta_spin .* spin_ .+ ising._s[1]
+        e = -(ising.H + ising.J' * spin)' * spin
+        probs[i] = exp(-Beta*e)
+    end
+    pF = sum(probs) 
+    return pF, probs ./ pF, spins
+end
