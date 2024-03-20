@@ -181,3 +181,22 @@ function _generatePartitionFunction(ising, Beta::T) where T
     pF = sum(probs) 
     return pF, probs ./ pF, spins
 end
+
+"""
+    Calculates the probability distribution for each spin independently
+    idxs says the spins that we care about
+"""
+function spinProbabilities(ising, Beta::T, idxs::AbstractArray{Int,1}) where{T}
+    # energy pre factor
+    e = - (ising.H + ising.J' * ising.s)[idxs]
+
+    n = length(idxs)
+    p = zeros(T, length(ising._s), n)
+
+    # energy matrix of interest
+    for i=1:n
+        pp = exp(-Beta*e[i] .* ising._s)
+        p[:,i] .= pp ./ sum(pp)
+    end
+    return p
+end
