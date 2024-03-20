@@ -1,3 +1,15 @@
+# ----- structs with the computation type
+struct SingleCPU <: AbstractComputation
+end
+
+struct ThreadsCPU <: AbstractComputation
+end
+
+struct SingleGPU <: AbstractComputation
+end
+
+
+# ----- General update
 
 function updateIsingModel!(ising::AbstractIsingModel{T, N, M}, Beta, alg::AbstractUpdateIsingModel) where {T, N, M}
     rng = Random.default_rng()
@@ -61,23 +73,25 @@ function makeCheckerboardIndeces(shp::NTuple{2,Int})
     return i_o, i_e
 end
 
-struct CheckerboardMetropolisAlgorithm{T} <: AbstractSerialUpdate
+struct CheckerboardMetropolisAlgorithm{T, C<:AbstractComputation} <: AbstractSerialUpdate
     sze::Int
-    i_o::AbstractArray{Int,1}
-    i_e::AbstractArray{Int,1}
+    idxs::Array{AbstractArray{Int,1},1} 
+    itt::Array{Int,1}
+    cmp::C
 end
 
-function updateIsingModel!(ising::AbstractIsingModel{T, N, M}, Beta::T, alg::CheckerboardMetropolisAlgorithm{T}, rng::Random.AbstractRNG) where {T, N, M}
+function updateIsingModel!(ising::AbstractIsingModel{T, N, M}, Beta::T, alg::CheckerboardMetropolisAlgorithm{T, C}, rng::Random.AbstractRNG) where {T, N, M, C}
     CheckerboardMetropolisUpdate!(ising, Beta, rng, alg)
 end
 
 
-struct CheckerboardGlauberAlgorithm{T} <: AbstractSerialUpdate
+struct CheckerboardGlauberAlgorithm{T, C<:AbstractComputation} <: AbstractSerialUpdate
     sze::Int
-    i_o::AbstractArray{Int,1}
-    i_e::AbstractArray{Int,1}
+    idxs::Array{AbstractArray{Int,1},1} 
+    itt::Array{Int,1}
+    cmp::C
 end
 
-function updateIsingModel!(ising::AbstractIsingModel{T, N, M}, Beta::T, alg::CheckerboardGlauberAlgorithm{T}, rng::Random.AbstractRNG) where {T, N, M}
+function updateIsingModel!(ising::AbstractIsingModel{T, N, M}, Beta::T, alg::CheckerboardGlauberAlgorithm{T, C}, rng::Random.AbstractRNG) where {T, N, M, C}
     CheckerboardGlauberUpdate!(ising, Beta, rng, alg)
 end

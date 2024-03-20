@@ -15,6 +15,7 @@ include("fields.jl")
 include("meanalgorithms.jl")
 include("spinglassmodel.jl")
 include("latticemodel.jl")
+include("coupledising.jl")
 
 # ---- exports ----
 export SpinGlassIsingModel,
@@ -32,11 +33,14 @@ export SpinGlassIsingModel,
        updateIsingModel!,
 
        MagnetizationField,
-       EnergyField,
+       LocalEnergyField,
+       InteractionEnergyField,
        MeanFields,
 
        TemporalAverageAlgorithm,
-       calculateFieldsAverage!
+       calculateFieldsAverage!,
+
+       coupledIsingMutualInformation!
        
 
 
