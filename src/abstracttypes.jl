@@ -108,3 +108,14 @@ abstract type AbstractEnergy <: AbstractField end
     Abstract Mean Field
 """
 abstract type AbstractMeanField end
+
+# ----- For Information and Entropy -----
+"""
+    Abstract Probability 
+"""
+abstract type AbstractProbability end
+
+"""
+    Abstract Entropy
+"""
+abstract type AbstractEntropy end

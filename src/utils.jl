@@ -88,6 +88,14 @@ function probDist(i::Int, probs, spins)
     return p
 end
 
+function probDist(::Val{2}, probs)
+    return [probs[1] + probs[2], probs[3] + probs[4]]
+end
+
+function probDist(::Val{1}, probs)
+    return [probs[1] + probs[3], probs[2] + probs[4]]
+end
+
 function probDist(i::NTuple{N, Int}, probs, spins) where N
     probDist([i...], probs, spins)
 end

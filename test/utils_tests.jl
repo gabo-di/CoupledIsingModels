@@ -26,6 +26,12 @@ end
         p = CoupledIsingModels.probDist(2, probs, spins)
         @test isapprox(p, [sum(probs[1:2]), sum(probs[3:4])])
 
+        p = CoupledIsingModels.probDist(Val(2), probs)
+        @test isapprox(p, [sum(probs[1:2]), sum(probs[3:4])])
+
+        p = CoupledIsingModels.probDist(Val(1), probs)
+        @test isapprox(p, [sum(probs[1:2:4]), sum(probs[2:2:4])])
+
 
         probs = rand(rng, 2^3)
         probs = probs ./ sum(probs)
