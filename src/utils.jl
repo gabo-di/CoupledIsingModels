@@ -1,8 +1,10 @@
 """
-    The sigmoid function
-    note that 
-    σ(-Inf) ~ 0
-    σ(Inf) ~ 1
+    s = sigmoid(x)
+
+The sigmoid function
+note that 
+σ(-Inf) ~ 0
+σ(Inf) ~ 1
 """
 function sigmoid(x)
     1/(1 + exp(-x))
@@ -10,10 +12,12 @@ end
 
 
 """
-    TAP equation for magnetization
-        m_i = tanh(β H_i + β J_ij*m_j - β² m_i (J_ij)^2*(1 - m_j^2)  ) )
-    see for example https://www.nature.com/articles/s41467-021-20890-5
-    equation (20)
+    m = _TAPEquation(m, Beta, J, H)
+
+TAP equation for magnetization
+    m_i = tanh(β H_i + β J_ij*m_j - β² m_i (J_ij)^2*(1 - m_j^2)  ) )
+see for example https://www.nature.com/articles/s41467-021-20890-5
+equation (20)
 """
 function _TAPEquation(m, Beta, J, H)
     tanh.(Beta*(H + J*m - Beta*(J.^2)*(1 .- m.^2 ))) 
@@ -21,10 +25,12 @@ end
 
 
 """
-    Magnetization in Lattice Ising Model in 1D with 
-    first neighbours interactions 
-    see for example https://www.thphys.uni-heidelberg.de/~wolschin/statsem20_3s.pdf
-    equation 3.27
+    m = _magnetization1DLatticeModel(Beta, J, H)
+
+Magnetization in Lattice Ising Model in 1D with 
+first neighbours interactions 
+see for example https://www.thphys.uni-heidelberg.de/~wolschin/statsem20_3s.pdf
+equation 3.27
 """
 function _magnetization1DLatticeModel(Beta, J, H)
     exp(2*Beta*J)*sinh(Beta*H)/sqrt(exp(4*Beta*J)*sinh(Beta*H)^2+1) 
@@ -32,10 +38,12 @@ end
 
 
 """
-   Spontaneous Magnetization in Lattice Ising Model in 2D with 
-   first neighbours interactions 
-   see for example https://en.wikipedia.org/wiki/Ising_model#Two_dimensions
-   equation in Onsager's formula for spontaneous magnetization 
+    m = _magnetization2DLatticeModel(Beta, J, H)
+
+Spontaneous Magnetization in Lattice Ising Model in 2D with 
+first neighbours interactions 
+see for example https://en.wikipedia.org/wiki/Ising_model#Two_dimensions
+equation in Onsager's formula for spontaneous magnetization 
 """
 function _magnetization2DLatticeModel(Beta, J, H)
     (1 - (sinh(2*Beta*J))^(-4))^(1/8)
@@ -43,8 +51,20 @@ end
 
     
 """
-    Generates all spin combinations for a given chain 
-    of size sze and posible spins _spins
+    s = _generateSpinCombinations(sze)
+
+Generates all spin combinations for a given chain 
+of size `sze`
+
+## Examples
+```jldoctest
+julia> spins = CoupledIsingModels._generateSpinCombinations(2);
+
+julia> target_spin_combination = [[0,0], [1,0], [0,1], [1,1]];
+
+julia> spins == target_spin_combination
+true
+```
 """
 function _generateSpinCombinations(sze)
     n_c = 2^sze - 1
@@ -54,9 +74,25 @@ end
 
 
 """
-    Calculates the probability distribution for a given set of spins, uses 
-    the results from_generateSpinCombinations 
-    TODO optimize this function
+    p = probDist(i::Array{Int,1}, probs, spins)
+
+Calculates the marginal probability distributions for a given set of spins, uses 
+the results from [`_generateSpinCombinations`](@ref)
+
+TODO optimize this function
+
+## Example
+```jldoctest
+julia> spins = CoupledIsingModels._generateSpinCombinations(2);
+
+julia> probs = [0.2, 0.1, 0.35, 0.35];
+
+julia> probDist(2, probs, spins) == [0.2+0.1, 0.35+0.35]
+true
+
+julia> probDist(Val(1), probs) == [0.2+0.35, 0.1+0.35]
+true
+```
 """
 function probDist(i::Array{Int,1}, probs, spins)
     c = _generateSpinCombinations(length(i)) 
@@ -102,8 +138,12 @@ end
 
 
 """
-    Calculates the Mutual Information for a given set of spins, uses 
-    the results from probDist 
+    i = mutualInformation(i::NTuple{2,Int}, probs, spins)
+
+Calculates the Mutual Information for a given set of spins, uses 
+the results from [`probDist`](@ref)
+
+See also [`entropy`](@ref), [`crossentropy`](@ref)
 """
 function mutualInformation(i::NTuple{2,Int}, probs, spins)
     p = probDist(i, probs, spins)
@@ -141,7 +181,11 @@ end
 
 
 """
-    Calculates the entropy of a mass distribution
+    e = entropy(p::AbstractArray{T,1}) where T
+
+Calculates the entropy of a mass distribution
+
+See also [`mutualInformation`](@ref), [`crossentropy`](@ref)
 """
 function entropy(p::AbstractArray{T,1}) where T
     mapreduce(x -> x>0 ? -x*log(x) : 0, +, p)
@@ -149,7 +193,11 @@ end
 
 
 """
-    Calculates the cross entropy of two mass distributions
+    e = crossentropy(p::AbstractArray{T,1}, y::AbstractArray{T,1}) where T
+
+Calculates the cross entropy of two mass distributions
+
+See also [`mutualInformation`](@ref), [`entropy`](@ref)
 """
 function crossentropy(p::AbstractArray{T,1}, y::AbstractArray{T,1}) where T
     if length(p) != length(y)
@@ -160,7 +208,9 @@ end
 
 
 """
-    Makes a base 10 number from binary representation
+    n = bin2dec(digi::Array{Int,1})
+
+Makes a base 10 number from binary representation
 """
 function bin2dec(digi::Array{Int,1})
     sum(digi[k]*2^(k-1) for k=1:length(digi))
@@ -168,8 +218,10 @@ end
 
 
 """
-    Generates the partition function and probabilities for a given ising model
-    consider that size needs to be at most 7
+    pF, p, s = _generatePartitionFunction(ising, Beta::T) where T
+
+Generates the partition function `pF`, probabilities `p` and spins `s`, 
+for a given ising model. Consider that `ising.size` needs to be at most 7
 """
 function _generatePartitionFunction(ising, Beta::T) where T
     max_size = 8
@@ -191,8 +243,10 @@ function _generatePartitionFunction(ising, Beta::T) where T
 end
 
 """
-    Calculates the probability distribution for each spin independently
-    idxs says the spins that we care about
+    p = spinProbabilities(ising, Beta::T, idxs::AbstractArray{Int,1}) where{T}
+
+Calculates the probability distribution for each spin independently
+idxs says the spins that we care about
 """
 function spinProbabilities(ising, Beta::T, idxs::AbstractArray{Int,1}) where{T}
     # energy pre factor
