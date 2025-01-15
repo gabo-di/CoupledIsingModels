@@ -93,7 +93,7 @@ struct CIMEntropyProductionRate{T} <: AbstractEntropy
 end
 
 function CIMEntropyProductionRate(::Type{T}, sze::Int) where{T}
-    CIMEntropyProduction{T}([zeros(T,sze), zeros(T,sze)])
+    CIMEntropyProductionRate{T}([zeros(T,sze), zeros(T,sze)])
 end
 
 function calcEntropy!(cim_Probability::CIMProbability{T}, cim_kRatio::KRatio{T},
